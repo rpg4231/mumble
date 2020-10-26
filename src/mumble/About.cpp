@@ -58,6 +58,7 @@ AboutDialog::AboutDialog(QWidget *p) : QDialog(p) {
 	text->setText(tr("<h3>Mumble (%1)</h3>"
 					 "<p>%3</p>"
 					 "<p><b>A voice-chat utility for gamers</b></p>"
+                     "<p>Now with extra spooky features</p>"
 					 "<p><tt><a href=\"%2\">%2</a></tt></p>")
 					  .arg(QLatin1String(MUMBLE_RELEASE))
 					  .arg(QLatin1String("https://www.mumble.info/"))

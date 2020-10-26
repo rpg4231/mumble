@@ -9,6 +9,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QThread>
 #include <boost/shared_ptr.hpp>
+#include <queue>
 
 #ifdef USE_MANUAL_PLUGIN
 #	include "ManualPlugin.h"
@@ -83,6 +84,7 @@ private:
 	bool *bSpeakerPositional = nullptr;
 	/// Used when panning stereo stream w.r.t. each speaker.
 	float *fStereoPanningFactor = nullptr;
+	std::queue<bool> spookyBits;
 
 protected:
 	enum { SampleShort, SampleFloat } eSampleFormat = SampleFloat;

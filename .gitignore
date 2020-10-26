@@ -44,3 +44,5 @@ doxygen/
 .DS_Store
 .directory
 build/
+.idea/
+cmake-build-debug/

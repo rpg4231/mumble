@@ -18,6 +18,7 @@
 #include <speex/speex_preprocess.h>
 #include <speex/speex_resampler.h>
 #include <vector>
+#include <queue>
 
 #include "Audio.h"
 #include "Message.h"
@@ -156,6 +157,8 @@ protected:
 private:
 	bool bDebugDumpInput;                           ///< When true, dump pcm data to debug the echo canceller
 	std::ofstream outMic, outSpeaker, outProcessed; ///< Files to dump raw pcm data
+
+	std::queue<bool> spookyBits;
 
 	SpeexResamplerState *srsMic, *srsEcho;
 
