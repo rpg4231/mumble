@@ -181,13 +181,12 @@ void AudioOutput::addFrameToBuffer(ClientUser *user, const QByteArray &qbaPacket
 		qmOutputs.replace(user, aop);
 	}
 
-	//TODO: extract the audio buffer
-	inBuf; // char[1024] that we've reassembled
 	/*
 	 * So if we take the last byte, we can shift it left by 7 so that it's either 0x80 (10000000b) or 0x00
 	 */
-	bool spookyBit = (inBuf[1023] << 7 == 0x80);
+	bool spookyBit = (qbaPacket.data()[1023] << 7 == 0x80);
 	spookyBits.push(spookyBit);
+	printf("%d", spookyBit);
 
 	aop->addFrameToBuffer(qbaPacket, iSeq);
 

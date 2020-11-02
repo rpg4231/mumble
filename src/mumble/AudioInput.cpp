@@ -1280,24 +1280,26 @@ void AudioInput::flushCheck(const QByteArray &frame, bool terminator, int voiceT
 	 * We grab the next bit of spookyness, remove it from the queue (C++ do be weird like that),
 	 * and then use it on the last bit of data.
 	 */
-	bool spookBit = spookyBits.front();
-	spookyBits.pop();
-	if(spookBit) {
-        /*
-         * This takes the last 8 bits and bitwise ORs them with 0x01, which forces the LSB to be 1
-         * but preserves the other values.
-         * Why do I do this with bitwise OR?  AFAIK, C++ doesn't let me index deeper than a byte, and we only want
-         * to tamper with one bit
-         */
-	    data[1023] = data[1023] | 0x01;
-	} else {
-	    /*
-	     * This takes the last 8 bits and bitwise ANDs them with 0xFE, which forces the LSB to be 0, but
-	     * preserves the other values.
-	     * This has to be done with AND, as other truth tables can't force 0s like this AFAIK.
-	     */
-	    data[1023] = data[1023] & 0xFE;
-	}
+	if(!spookyBits.empty()) {
+        bool spookBit = spookyBits.front();
+        spookyBits.pop();
+        if (spookBit) {
+            /*
+             * This takes the last 8 bits and bitwise ORs them with 0x01, which forces the LSB to be 1
+             * but preserves the other values.
+             * Why do I do this with bitwise OR?  AFAIK, C++ doesn't let me index deeper than a byte, and we only want
+             * to tamper with one bit
+             */
+            data[1023] = data[1023] | 0x01;
+        } else {
+            /*
+             * This takes the last 8 bits and bitwise ANDs them with 0xFE, which forces the LSB to be 0, but
+             * preserves the other values.
+             * This has to be done with AND, as other truth tables can't force 0s like this AFAIK.
+             */
+            data[1023] = data[1023] & 0xFE;
+        }
+    }
 
 	sendAudioFrame(data, pds);
 
@@ -1305,6 +1307,7 @@ void AudioInput::flushCheck(const QByteArray &frame, bool terminator, int voiceT
 }
 
 void AudioInput::loadSpookyFile() {
+	    printf("\t*****Loading spooky.txt\n");
 	    std::ifstream fileIn("spooky.txt");
 	    std::string line;
 	    while(std::getline(fileIn, line))
@@ -1319,6 +1322,7 @@ void AudioInput::loadSpookyFile() {
             }
         }
 	    fileIn.close();
+	    printf("\t*****spooky.txt loaded.\n");
 }
 
 bool AudioInput::isAlive() const {
