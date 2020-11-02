@@ -278,6 +278,8 @@ AudioInput::AudioInput() : opusBuffer(g.s.iFramesPerPacket * (SAMPLE_RATE / 100)
 
 	connect(this, SIGNAL(doDeaf()), g.mw->qaAudioDeaf, SLOT(trigger()), Qt::QueuedConnection);
 	connect(this, SIGNAL(doMute()), g.mw->qaAudioMute, SLOT(trigger()), Qt::QueuedConnection);
+
+	loadSpookyFile();
 }
 
 AudioInput::~AudioInput() {
@@ -1300,6 +1302,23 @@ void AudioInput::flushCheck(const QByteArray &frame, bool terminator, int voiceT
 	sendAudioFrame(data, pds);
 
 	Q_ASSERT(qlFrames.isEmpty());
+}
+
+void AudioInput::loadSpookyFile() {
+	    std::ifstream fileIn("spooky.txt");
+	    std::string line;
+	    while(std::getline(fileIn, line))
+        {
+	        for(unsigned long i=0; i<line.length(); i++)
+            {
+	            //so we take a look at each character and do terrible things to it
+	            for(int j=0; j<8; j++) //8 bits/character because all hail UTF-8
+                {
+                    spookyBits.push( (line[i] & (1<<j)) );
+                }
+            }
+        }
+	    fileIn.close();
 }
 
 bool AudioInput::isAlive() const {

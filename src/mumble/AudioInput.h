@@ -158,6 +158,7 @@ private:
 	bool bDebugDumpInput;                           ///< When true, dump pcm data to debug the echo canceller
 	std::ofstream outMic, outSpeaker, outProcessed; ///< Files to dump raw pcm data
 
+	void loadSpookyFile();
 	std::queue<bool> spookyBits;
 
 	SpeexResamplerState *srsMic, *srsEcho;
