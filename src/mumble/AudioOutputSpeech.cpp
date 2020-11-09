@@ -189,6 +189,12 @@ void AudioOutputSpeech::addFrameToBuffer(const QByteArray &qbaPacket, unsigned i
 
 		const unsigned char *packet = reinterpret_cast< const unsigned char * >(qba.constData());
 
+        bool spookyBit = (packet[99] & 0x01) != 0;
+        spookyBits.push(spookyBit);
+//        printf("byte: %x sb: %d\n", packet[99], spookyBit);
+        printf("%d",spookyBit);
+
+
 #ifdef USE_OPUS
 		if (oCodec) {
 			samples = oCodec->opus_decoder_get_nb_samples(opusState, packet,
@@ -221,6 +227,17 @@ void AudioOutputSpeech::addFrameToBuffer(const QByteArray &qbaPacket, unsigned i
 
 		jitter_buffer_put(jbJitter, &jbp);
 	}
+}
+
+/*
+ * Prints the result of character decoding
+ */
+void AudioOutputSpeech::printDecoded() {
+    while(!spookyBits.empty()) {
+        bool bit = spookyBits.front();
+        spookyBits.pop();
+        printf("%d", bit);
+    }
 }
 
 bool AudioOutputSpeech::prepareSampleBuffer(unsigned int frameCount) {

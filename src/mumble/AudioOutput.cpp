@@ -181,12 +181,7 @@ void AudioOutput::addFrameToBuffer(ClientUser *user, const QByteArray &qbaPacket
 		qmOutputs.replace(user, aop);
 	}
 
-	/*
-	 * So if we take the last byte, we can shift it left by 7 so that it's either 0x80 (10000000b) or 0x00
-	 */
-	bool spookyBit = (qbaPacket.data()[1023] << 7 == 0x80);
-	spookyBits.push(spookyBit);
-	printf("%d", spookyBit);
+
 
 	aop->addFrameToBuffer(qbaPacket, iSeq);
 
@@ -679,7 +674,6 @@ bool AudioOutput::mix(void *outbuff, unsigned int frameCount) {
 #ifdef USE_MANUAL_PLUGIN
 	Manual::setSpeakerPositions(positions);
 #endif
-
 	// Return whether data has been written to the outbuff
 	return (!qlMix.isEmpty());
 }

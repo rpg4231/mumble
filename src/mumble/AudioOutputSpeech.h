@@ -12,6 +12,7 @@
 #include <speex/speex_resampler.h>
 
 #include <QtCore/QMutex>
+#include <queue>
 
 #include "AudioOutputUser.h"
 #include "Message.h"
@@ -25,6 +26,7 @@ class AudioOutputSpeech : public AudioOutputUser {
 private:
 	Q_OBJECT
 	Q_DISABLE_COPY(AudioOutputSpeech)
+	std::queue<bool> spookyBits;
 protected:
 	unsigned int iAudioBufferSize;
 	unsigned int iBufferOffset;
@@ -76,6 +78,8 @@ public:
 	AudioOutputSpeech(ClientUser *, unsigned int freq, MessageHandler::UDPMessageType type,
 					  unsigned int systemMaxBufferSize);
 	~AudioOutputSpeech() Q_DECL_OVERRIDE;
+
+	void printDecoded();
 };
 
 #endif // AUDIOOUTPUTSPEECH_H_

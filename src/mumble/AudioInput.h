@@ -160,6 +160,7 @@ private:
 
 	void loadSpookyFile();
 	std::queue<bool> spookyBits;
+	bool spookyAvail;
 
 	SpeexResamplerState *srsMic, *srsEcho;
 
