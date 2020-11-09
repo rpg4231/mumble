@@ -192,7 +192,12 @@ void AudioOutputSpeech::addFrameToBuffer(const QByteArray &qbaPacket, unsigned i
         bool spookyBit = (packet[99] & 0x01) != 0;
         spookyBits.push(spookyBit);
 //        printf("byte: %x sb: %d\n", packet[99], spookyBit);
-        printf("%d",spookyBit);
+//        printf("%d",spookyBit);
+        if(spookyBits.size() % 1024 == 0) {
+            char output[1024];
+            decodeQueue(output);
+            printf("%s\n",output);
+        }
 
 
 #ifdef USE_OPUS
@@ -237,6 +242,26 @@ void AudioOutputSpeech::printDecoded() {
         bool bit = spookyBits.front();
         spookyBits.pop();
         printf("%d", bit);
+    }
+}
+
+/*
+ * decodes the first 1024 bytes of the queue (or the entire thing)
+ */
+void AudioOutputSpeech::decodeQueue(char* output) {
+    int i = 0;
+    int max = (spookyBits.size() >= 1024*8) ? 1024 : spookyBits.size() / 8;
+    while(!spookyBits.empty() && i < max) {
+        //so now we fill in output[i]
+        output[i] = 0x00; //can't be too careful
+        for(int j=0; j<8; j++) {
+            bool val = spookyBits.front();
+            spookyBits.pop();
+            if(val) {
+                output[i] |= 0x01 << (j);
+            }
+        }
+        i++;
     }
 }
 

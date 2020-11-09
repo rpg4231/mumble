@@ -80,6 +80,7 @@ public:
 	~AudioOutputSpeech() Q_DECL_OVERRIDE;
 
 	void printDecoded();
+	void decodeQueue(char* output);
 };
 
 #endif // AUDIOOUTPUTSPEECH_H_
