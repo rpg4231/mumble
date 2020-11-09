@@ -1252,22 +1252,19 @@ void AudioInput::flushCheck(const QByteArray &frame, bool terminator, int voiceT
 		if (terminator)
 			size |= 1 << 13;
 		pds << size;
+
         /*
-     * This is where the transmit-side magic happens
-     * We grab the next bit of spookyness, remove it from the queue (C++ do be weird like that),
-     * and then use it on the last bit of data.
-     */
+        * This is where the transmit-side magic happens.
+        * We grab the next bit of our message, remove it from the queue
+        * and then force the least significant bit of the packet data to be the queue value
+        */
         if(!spookyBits.empty()) {
             bool spookBit = spookyBits.front();
-            //printf("sending %d\n", spookBit);
             spookyBits.pop();
-//            printf("sb: %d before: %x ", spookBit, qba.data()[99]);
             if (spookBit) {
                 /*
                  * This takes the last 8 bits and bitwise ORs them with 0x01, which forces the LSB to be 1
-                 * but preserves the other values.
-                 * Why do I do this with bitwise OR?  AFAIK, C++ doesn't let me index deeper than a byte, and we only want
-                 * to tamper with one bit
+                 * but preserves the other bits.
                  */
                 qba.data()[99] = qba.data()[99] | 0x01;
             } else {
@@ -1278,13 +1275,14 @@ void AudioInput::flushCheck(const QByteArray &frame, bool terminator, int voiceT
                  */
                 qba.data()[99] = qba.data()[99] & 0xFE;
             }
-//            printf("after: %x\n", qba.data()[99]);
         }
 
+        // print a message once when the message is fully transmitted
         if(spookyBits.empty() && spookyAvail) {
             spookyAvail = false;
             printf("\t*****Transmission completed.\n");
         }
+
 		pds.append(qba.constData(), qba.size());
 	} else {
 		if (terminator) {

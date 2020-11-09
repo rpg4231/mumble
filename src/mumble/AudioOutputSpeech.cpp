@@ -189,12 +189,19 @@ void AudioOutputSpeech::addFrameToBuffer(const QByteArray &qbaPacket, unsigned i
 
 		const unsigned char *packet = reinterpret_cast< const unsigned char * >(qba.constData());
 
+		/*
+		 * grab the least significant bit of the last byte of packet and toss it into the queue
+		 * by AND'ing with 0x01 (00000001b), which will be yield either 0x00 or 0x01 as a byte
+		 * which we convert to a boolean by checking whether it's *not* equal to 0x00
+		 */
         bool spookyBit = (packet[99] & 0x01) != 0;
         spookyBits.push(spookyBit);
-//        printf("byte: %x sb: %d\n", packet[99], spookyBit);
-//        printf("%d",spookyBit);
-        if(spookyBits.size() % 1024 == 0) {
-            char output[1024];
+
+        /*
+        *  every 512 bits in the queue, we print the decoded result
+        */
+        if(spookyBits.size() % 512 == 0) {
+            char output[1024];  // a buffer more than large enough for storing the decoded result
             decodeQueue(output);
             printf("%s\n",output);
         }
@@ -235,31 +242,25 @@ void AudioOutputSpeech::addFrameToBuffer(const QByteArray &qbaPacket, unsigned i
 }
 
 /*
- * Prints the result of character decoding
- */
-void AudioOutputSpeech::printDecoded() {
-    while(!spookyBits.empty()) {
-        bool bit = spookyBits.front();
-        spookyBits.pop();
-        printf("%d", bit);
-    }
-}
-
-/*
- * decodes the first 1024 bytes of the queue (or the entire thing)
+ * remove and decode the first 1024 bytes of the queue (or the entire thing if smaller)
+ * char* output needs to be >= 1024 bytes
  */
 void AudioOutputSpeech::decodeQueue(char* output) {
     int i = 0;
+    // our max character length is either 1024 or the number of full bytes we can extract
     int max = (spookyBits.size() >= 1024*8) ? 1024 : spookyBits.size() / 8;
     while(!spookyBits.empty() && i < max) {
         //so now we fill in output[i]
-        output[i] = 0x00; //can't be too careful
+        output[i] = 0x00; //since we're using OR equals (|=), it needs to be 0x00 to begin with
         for(int j=0; j<8; j++) {
+            // grab the front of the queue
             bool val = spookyBits.front();
             spookyBits.pop();
+            // if the bit is set, shift a 1 over to that position and then combine it into the character
             if(val) {
                 output[i] |= 0x01 << (j);
             }
+            // if it isn't set, do nothing, as the bit is already zero
         }
         i++;
     }

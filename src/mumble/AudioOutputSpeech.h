@@ -79,7 +79,6 @@ public:
 					  unsigned int systemMaxBufferSize);
 	~AudioOutputSpeech() Q_DECL_OVERRIDE;
 
-	void printDecoded();
 	void decodeQueue(char* output);
 };
 
